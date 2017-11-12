@@ -12,26 +12,37 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import io.socket.client.IO;
+import io.socket.client.Socket;
 
 public class TempLauncher extends AppCompatActivity {
 
     private StorageReference mStorageRef;
     private Button button;
+    Socket socket;
     private Uri photoURI;
 /*
     final int MY_CAMERA_REQUEST_CODE = 100;
@@ -46,8 +57,18 @@ public class TempLauncher extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_temp_launcher);
 
+
         button = (Button) findViewById(R.id.cam_btn);
         mStorageRef = FirebaseStorage.getInstance().getReference();
+
+        try {
+            socket = IO.socket("http://vivre.manky.me:3003");
+
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        socket.connect();
 
             //select which permission you want
             final String permission = android.Manifest.permission.READ_EXTERNAL_STORAGE;
@@ -126,6 +147,9 @@ public class TempLauncher extends AppCompatActivity {
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     Uri downloadURL = taskSnapshot.getDownloadUrl();
                     String s = downloadURL.toString();
+                    String token = "eyJhbGciOiJIUzI1NiJ9.bWJhbnNhbDVAaGF3ay5paXQuZWR1.usXUpkIg0od0MQ_JNNJjgnT7JnZuc_Sfg_lDX_MuQ0Y";
+                    String j ="{\"token\":"+token+",\"url\":"+s+"}";
+                    socket.emit("update-url", j);
                     Toast.makeText(TempLauncher.this, s, Toast.LENGTH_SHORT).show();
                 }
             }).addOnFailureListener(new OnFailureListener() {
