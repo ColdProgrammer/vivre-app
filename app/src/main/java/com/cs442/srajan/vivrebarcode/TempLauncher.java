@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -31,6 +32,15 @@ public class TempLauncher extends AppCompatActivity {
 
     private StorageReference mStorageRef;
     private Button button;
+    private Uri photoURI;
+/*
+    final int MY_CAMERA_REQUEST_CODE = 100;
+                if (checkSelfPermission(android.Manifest.permission.CAMERA)
+                        != PackageManager.PERMISSION_GRANTED) {
+        requestPermissions(new String[]{android.Manifest.permission.CAMERA},
+                MY_CAMERA_REQUEST_CODE);
+    }
+    */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,18 +49,28 @@ public class TempLauncher extends AppCompatActivity {
         button = (Button) findViewById(R.id.cam_btn);
         mStorageRef = FirebaseStorage.getInstance().getReference();
 
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if ( Build.VERSION.SDK_INT >= 23 &&
-                        ContextCompat.checkSelfPermission( TempLauncher.this, android.Manifest.permission.CAMERA ) != PackageManager.PERMISSION_GRANTED) {
-                    dispatchTakePictureIntent();
+            //select which permission you want
+            final String permission = android.Manifest.permission.READ_EXTERNAL_STORAGE;
+            if (ContextCompat.checkSelfPermission(TempLauncher.this, permission)
+                    != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(TempLauncher.this, permission)) {
+                } else {
+                    ActivityCompat.requestPermissions(TempLauncher.this, new String[]{permission}, 1);
                 }
+            } else {
+                // you have permission go ahead launch service
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
 
+                        dispatchTakePictureIntent();
+                    }
+                });
             }
-        });
+        }
 
-    }
+
+
 
     String mCurrentPhotoPath;
 
@@ -83,7 +103,7 @@ public class TempLauncher extends AppCompatActivity {
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
+                  photoURI = FileProvider.getUriForFile(this,
                         "com.example.android.fileprovider",
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
@@ -92,28 +112,32 @@ public class TempLauncher extends AppCompatActivity {
         }
     }
 
-    /*public void img(StorageReference storageRef){
-        Uri file = Uri.fromFile(new File("path/to/images/rivers.jpg"));
-        StorageReference riversRef = storageRef.child("images/rivers.jpg");
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-        riversRef.putFile(file)
-                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        // Get a URL to the uploaded content
-                        Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        // Handle unsuccessful uploads
-                        // ...
-                    }
-                });
+        if(requestCode == 1 && resultCode == RESULT_OK){
+
+            //Uri uri = data.getData();
+
+            StorageReference filepath = mStorageRef.child("Photos").child(photoURI.getLastPathSegment());
+            filepath.putFile(photoURI).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Uri downloadURL = taskSnapshot.getDownloadUrl();
+                    String s = downloadURL.toString();
+                    Toast.makeText(TempLauncher.this, s, Toast.LENGTH_SHORT).show();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(TempLauncher.this, "Upload Failed!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
-    public void downloadFile(StorageReference riversRef) {
+    /*public void downloadFile(StorageReference riversRef) {
         File localFile = File.createTempFile("images", "jpg");
         riversRef.getFile(localFile)
                 .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
