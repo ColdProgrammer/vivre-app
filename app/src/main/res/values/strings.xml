@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">VivreBarCode</string>
+    <string name="scan">Scan</string>
+    <string name="scanPhone">Scan Phone QR Code</string>
+</resources>
