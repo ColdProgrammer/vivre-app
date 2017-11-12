@@ -44,14 +44,14 @@ public class AsynchronousTask extends AsyncTask<String, String, String> {
 
     @Override
     protected void onPostExecute(String result) {
-        Toast.makeText(mContext, "Your data has been recorded", Toast.LENGTH_LONG).show();
+        Toast.makeText(mContext, "your data is recorded", Toast.LENGTH_LONG).show();
     }
 
     @Override
     protected String doInBackground(String... arg0) {
         try{
 
-            URL url = new URL("http://vivre.manky.me:3003/posts");
+            URL url = new URL("http://altruist.manky.me:3000/posts");
 
             JSONObject postDataParams = new JSONObject();
             postDataParams.put("token", clothDetails.token);
