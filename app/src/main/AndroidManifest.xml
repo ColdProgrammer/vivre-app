@@ -17,7 +17,6 @@
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
         </activity>
-        <activity android:name=".GenBarcodeActivity" />
         <activity android:name=".TempLauncher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -35,6 +34,4 @@
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
     </application>
-
-
 </manifest>

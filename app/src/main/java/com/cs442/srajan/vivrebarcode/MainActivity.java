@@ -7,7 +7,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -21,23 +20,10 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.net.URISyntaxException;
+
 import io.socket.client.IO;
 import io.socket.client.Socket;
-import io.socket.emitter.Emitter;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLEncoder;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -91,6 +77,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //new AsynchronousTask(this).execute();
+
 
     }
 
@@ -114,15 +102,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                     hitServer(scanContent);
                 }
-                //Go to next activity for gen barcode
-                //String scanFormat = scanningResult.getFormatName();
-                /*formatTxt.setText("FORMAT: " + scanFormat);
-                contentTxt.setText("CONTENT: " + scanContent);*/
-                /*Intent intent1 = new Intent(MainActivity.this, GenBarcodeActivity.class);
-                intent1.putExtra("scanContent", scanContent);
-                startActivity(intent1);*/
-
-                //POST("http://vivre.manky.me:3000/barcode?", scanContent);
             }
         } else {
             Toast toast = Toast.makeText(getApplicationContext(),

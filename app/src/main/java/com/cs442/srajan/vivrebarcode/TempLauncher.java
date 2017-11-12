@@ -3,7 +3,7 @@ package com.cs442.srajan.vivrebarcode;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -11,23 +11,20 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,57 +39,82 @@ public class TempLauncher extends AppCompatActivity {
 
     private StorageReference mStorageRef;
     private Button button;
-    Socket socket;
+    private Spinner spinner;
+    private EditText etClothName, etClothSize, etClothColour, etClothDesc;
     private Uri photoURI;
-/*
-    final int MY_CAMERA_REQUEST_CODE = 100;
+    private TextView textView;
+    String text;
+
+    /*final int MY_CAMERA_REQUEST_CODE = 100;
                 if (checkSelfPermission(android.Manifest.permission.CAMERA)
                         != PackageManager.PERMISSION_GRANTED) {
         requestPermissions(new String[]{android.Manifest.permission.CAMERA},
                 MY_CAMERA_REQUEST_CODE);
-    }
-    */
+    }*/
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_temp_launcher);
 
-
-        button = (Button) findViewById(R.id.cam_btn);
+        etClothName = findViewById(R.id.tieclothName);
+        etClothSize = findViewById(R.id.tieclothSize);
+        etClothColour = findViewById(R.id.tieclothClr);
+        etClothDesc = findViewById(R.id.tieclothDesc);
+        button = findViewById(R.id.cam_btn);
+        textView = findViewById(R.id.heading);
+        spinner = findViewById(R.id.dropdownList);
         mStorageRef = FirebaseStorage.getInstance().getReference();
 
-        try {
-            socket = IO.socket("http://vivre.manky.me:3003");
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.categories, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
 
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+        //To change the value of the xml using spinner value
 
-        socket.connect();
+        text = spinner.getSelectedItem().toString();
 
-            //select which permission you want
-            final String permission = android.Manifest.permission.READ_EXTERNAL_STORAGE;
-            if (ContextCompat.checkSelfPermission(TempLauncher.this, permission)
-                    != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(TempLauncher.this, permission)) {
-                } else {
-                    ActivityCompat.requestPermissions(TempLauncher.this, new String[]{permission}, 1);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if(text=="Household") {
+                    textView.setText("HouseHold Details");
+                } else if(text == "Clothes"){
+                    textView.setText("Cloth Details");
                 }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+        /*if(text=="Household") {
+            textView.setText("HouseHold Details");
+        } else {
+            textView.setText("Cloth Details");
+        }*/
+
+
+
+        //select which permission you want
+        final String permission = android.Manifest.permission.READ_EXTERNAL_STORAGE;
+        if (ContextCompat.checkSelfPermission(TempLauncher.this, permission)!= PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(TempLauncher.this, permission)) {
             } else {
-                // you have permission go ahead launch service
-                button.setOnClickListener(new View.OnClickListener() {
+                ActivityCompat.requestPermissions(TempLauncher.this, new String[]{permission}, 1);
+            }
+        } else {
+            // you have permission go ahead launch service
+            button.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
                         dispatchTakePictureIntent();
                     }
                 });
             }
         }
-
-
-
-
     String mCurrentPhotoPath;
 
     private File createImageFile() throws IOException {
@@ -146,11 +168,23 @@ public class TempLauncher extends AppCompatActivity {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     Uri downloadURL = taskSnapshot.getDownloadUrl();
-                    String s = downloadURL.toString();
-                    String token = "eyJhbGciOiJIUzI1NiJ9.bWJhbnNhbDVAaGF3ay5paXQuZWR1.usXUpkIg0od0MQ_JNNJjgnT7JnZuc_Sfg_lDX_MuQ0Y";
-                    String j ="{\"token\":"+token+",\"url\":"+s+"}";
-                    socket.emit("update-url", j);
-                    Toast.makeText(TempLauncher.this, s, Toast.LENGTH_SHORT).show();
+                    ClothDetails clothDetails = new ClothDetails();
+                    clothDetails.url = downloadURL.toString();
+                    clothDetails.clothname = etClothName.getText().toString();
+                    clothDetails.colour = etClothColour.getText().toString();
+                    clothDetails.size = etClothSize.getText().toString();
+                    clothDetails.desc = etClothDesc.getText().toString();
+                    clothDetails.category = spinner.getSelectedItem().toString();
+                    //clothDetails.token = "eyJhbGciOiJIUzI1NiJ9.bWJhbnNhbDVAaGF3ay5paXQuZWR1.usXUpkIg0od0MQ_JNNJjgnT7JnZuc_Sfg_lDX_MuQ0Y";
+                    new AsynchronousTask(TempLauncher.this, clothDetails).execute();
+                    //Resetting the values
+                    etClothSize.setText("");
+                    etClothColour.setText("");
+                    etClothDesc.setText("");
+                    etClothName.setText("");
+                    /*String j ="{\"token\":"+token+",\"url\":"+s+"}";
+                    socket.emit("update-url", j);*/
+                    //Toast.makeText(TempLauncher.this, clothDetails.url, Toast.LENGTH_SHORT).show();
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override

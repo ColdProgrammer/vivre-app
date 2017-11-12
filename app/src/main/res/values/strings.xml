@@ -2,4 +2,8 @@
     <string name="app_name">VivreBarCode</string>
     <string name="scan">Scan</string>
     <string name="scanPhone">Scan Phone QR Code</string>
+    <string-array name="categories">
+        <item>Household</item>
+        <item>Clothes</item>
+    </string-array>
 </resources>

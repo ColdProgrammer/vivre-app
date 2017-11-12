@@ -4,13 +4,109 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.cs442.srajan.vivrebarcode.TempLauncher">
+    android:orientation="vertical"
+    tools:context="com.cs442.srajan.vivrebarcode.TempLauncher"
+    android:padding="10dp"
+    android:layout_gravity="center">
 
-   <Button
-       android:layout_width="wrap_content"
+   <LinearLayout
+       android:layout_width="match_parent"
        android:layout_height="wrap_content"
-       android:id="@+id/cam_btn"
-       android:text="click"
-       />
+       android:orientation="vertical"
+       android:padding="10dp">
+
+      <TextView
+          android:id="@+id/heading"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:text="Details"
+          android:textSize="20sp"
+          android:gravity="center"
+          android:textAllCaps="true"
+          android:textStyle="bold"
+          android:layout_margin="10dp"/>
+
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:orientation="vertical"
+          android:padding="10dp">
+
+         <Spinner
+             android:id="@+id/dropdownList"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content">
+         </Spinner>
+
+         <android.support.design.widget.TextInputLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/tieclothSize"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:maxLines="1"
+                android:hint="Size"/>
+
+         </android.support.design.widget.TextInputLayout>
+
+         <android.support.design.widget.TextInputLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/tieclothClr"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:maxLines="1"
+                android:hint="Colour"/>
+
+         </android.support.design.widget.TextInputLayout>
+
+         <android.support.design.widget.TextInputLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/tieclothName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:maxLines="1"
+                android:hint="Name"/>
+
+         </android.support.design.widget.TextInputLayout>
+
+         <android.support.design.widget.TextInputLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/tieclothDesc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:maxLines="3"
+                android:hint="Description"/>
+
+         </android.support.design.widget.TextInputLayout>
+
+      </LinearLayout>
+
+      <Button
+          android:background="@xml/mybutton"
+          android:layout_gravity="center"
+          android:layout_margin="20dp"
+          android:padding="10dp"
+          android:layout_marginTop="10dp"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:id="@+id/cam_btn"
+          android:text="Click Pic and Submit"/>
+
+   </LinearLayout>
 </LinearLayout>
 
